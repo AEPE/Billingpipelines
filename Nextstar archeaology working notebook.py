@@ -17,7 +17,7 @@ spark.conf.set(
 
 # MAGIC %sql
 # MAGIC 
-# MAGIC --DROP DATABASE importnextstar CASCADE;
+# MAGIC DROP DATABASE importnextstar CASCADE;
 # MAGIC CREATE DATABASE IF NOT EXISTS importnextstar;
 
 # COMMAND ----------
@@ -129,3 +129,11 @@ Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/report_plopez.csv"
 Report = deliveryserviceclasscategory_results.union(energymonthlyservicepoint_results).union(deliverycharge_results).union(deliverychargecodedescription_results).union(deliverychargedetail_results).union(deliverychargeincludedetail_results)
 Report.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
 
+
+# COMMAND ----------
+
+
+Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/report_plopez.csv"
+
+Report = deliveryserviceclasscategory_results.union(energymonthlyservicepoint_results).union(deliverycharge_results).union(deliverychargecodedescription_results).union(deliverychargedetail_results).union(deliverychargeincludedetail_results)
+Report.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
