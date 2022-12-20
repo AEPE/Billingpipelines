@@ -106,12 +106,6 @@ deliverychargeincludedetail_results.rename({'index': 'Colname', 'None_x': 'Uniqu
 
 # COMMAND ----------
 
-#display(deliveryserviceclasscategory_results)
-#display(energymonthlyservicepoint_results)
-#display(deliverycharge_results)
-
-# COMMAND ----------
-
 deliveryserviceclasscategory_results = deliveryserviceclasscategory_results.to_spark()
 deliveryserviceclasscategory_results = deliveryserviceclasscategory_results.withColumn("table",lit("deliveryserviceclasscategory"))
 
@@ -135,7 +129,3 @@ Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/report_plopez.csv"
 Report = deliveryserviceclasscategory_results.union(energymonthlyservicepoint_results).union(deliverycharge_results).union(deliverychargecodedescription_results).union(deliverychargedetail_results).union(deliverychargeincludedetail_results)
 Report.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
 
-
-# COMMAND ----------
-
-#display(Report)
