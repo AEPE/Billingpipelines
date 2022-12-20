@@ -16,8 +16,7 @@ spark.conf.set(
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC 
-# MAGIC --DROP DATABASE importnextstar CASCADE;
+# MAGIC DROP DATABASE importnextstar CASCADE;
 # MAGIC CREATE DATABASE IF NOT EXISTS importnextstar;
 
 # COMMAND ----------
@@ -68,8 +67,7 @@ accountproduct_results = accountproduct_results.withColumn("table",lit("accountp
 basetype_results = basetype_results.withColumn("table",lit("basetype"))
 
 #consolidate datasets in one single object
-Report = accountproduct_results.union(basetype_results).union(<tabla>).union(<tabla>)
+Report = accountproduct_results.union(basetype_results)
 
 #write to the csv file and display the report
 Report.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
-display(Report)
