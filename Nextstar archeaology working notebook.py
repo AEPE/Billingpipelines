@@ -17,7 +17,7 @@ spark.conf.set(
 
 # MAGIC %sql
 # MAGIC 
-# MAGIC --DROP DATABASE importnextstar CASCADE;
+# MAGIC DROP DATABASE importnextstar CASCADE;
 # MAGIC CREATE DATABASE IF NOT EXISTS importnextstar;
 
 # COMMAND ----------
@@ -138,8 +138,6 @@ usagebehaviorrules_pandas_df_na.reset_index(inplace=True)
 usagebehaviorrules_results = usagebehaviorrules_pandas_df_unique.merge(usagebehaviorrules_pandas_df_na, on='index')
 usagebehaviorrules_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
 
-#pending to include a tablename col 
-
 # COMMAND ----------
 
 accountproduct_results = accountproduct_results.to_spark()
@@ -182,12 +180,11 @@ usagebehaviorrules_results = usagebehaviorrules_results.withColumn("table",lit("
 #Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/usagebehaviorrules_results.csv"
 #usagebehaviorrules_results.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
 
-Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/unified_results.csv"
-
 #consolidate datasets in one single object
 Report = accountproduct_results.union(daylightsavingtime_results).union(energyhourlyusagedetail_results).union(energymonthlyservicepoint_results).union(estimatedusage_results).union(meterenergymonthlyusage_results).union(usageallowedthresholdfactor_results).union(usagebehaviorrules_results)
 
 #write to the csv file and display the report
+
+Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/unified_results.csv"
 Report.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
 display(Report)
-
