@@ -22,6 +22,27 @@ spark.conf.set(
 # COMMAND ----------
 
 # MAGIC %sql
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.deliverybalance;
+# MAGIC CREATE TABLE importnextstar.deliverybalance 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliverybalance";
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.deliverychargeitemtype;
+# MAGIC CREATE TABLE importnextstar.deliverychargeitemtype 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliverychargeitemtype";
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.deliverychargestatus;
+# MAGIC CREATE TABLE importnextstar.deliverychargestatus 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliverychargestatus";
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.deliverymeterdetail;
+# MAGIC CREATE TABLE importnextstar.deliverymeterdetail 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliverymeterdetail";
+# MAGIC 
 # MAGIC DROP TABLE if exists importnextstar.accountproduct;
 # MAGIC CREATE TABLE importnextstar.accountproduct 
 # MAGIC USING parquet
@@ -46,6 +67,11 @@ spark.conf.set(
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliveryserviceclasscategory";
 # MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.factorestimateddelivery;
+# MAGIC CREATE TABLE importnextstar.factorestimateddelivery 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/factorestimateddelivery";
+# MAGIC
 # MAGIC DROP TABLE if exists importnextstar.energymonthlyservicepoint;
 # MAGIC CREATE TABLE importnextstar.energymonthlyservicepoint 
 # MAGIC USING parquet
@@ -157,14 +183,54 @@ deliverychargeincludedetail_pandas_df_na.reset_index(inplace=True)
 deliverychargeincludedetail_results = deliverychargeincludedetail_pandas_df_unique.merge(deliverychargeincludedetail_pandas_df_na, on='index')
 deliverychargeincludedetail_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
 
-accountproduct = sqlContext.sql("select * from importnextstar.accountproduct")
-accountproduct_pandas_df = ps.DataFrame(accountproduct)
-accountproduct_pandas_df_unique = ps.DataFrame(accountproduct_pandas_df.nunique())
-accountproduct_pandas_df_na = ps.DataFrame(accountproduct_pandas_df.isna().sum())
-accountproduct_pandas_df_unique.reset_index(inplace=True)
-accountproduct_pandas_df_na.reset_index(inplace=True)
-accountproduct_results = accountproduct_pandas_df_unique.merge(accountproduct_pandas_df_na, on='index')
-accountproduct_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+deliverybalance_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliverybalance"))
+deliverybalance_pandas_df_unique = ps.DataFrame(deliverybalance_pandas_df.nunique())
+deliverybalance_pandas_df_na = ps.DataFrame(deliverybalance_pandas_df.isna().sum())
+deliverybalance_pandas_df_unique.reset_index(inplace=True)
+deliverybalance_pandas_df_na.reset_index(inplace=True)
+deliverybalance_results = deliverybalance_pandas_df_unique.merge(deliverybalance_pandas_df_na, on='index')
+deliverybalance_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+deliverychargeitemtype_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliverychargeitemtype"))
+deliverychargeitemtype_pandas_df_unique = ps.DataFrame(deliverychargeitemtype_pandas_df.nunique())
+deliverychargeitemtype_pandas_df_na = ps.DataFrame(deliverychargeitemtype_pandas_df.isna().sum())
+deliverychargeitemtype_pandas_df_unique.reset_index(inplace=True)
+deliverychargeitemtype_pandas_df_na.reset_index(inplace=True)
+deliverychargeitemtype_results = deliverychargeitemtype_pandas_df_unique.merge(deliverychargeitemtype_pandas_df_na, on='index')
+deliverychargeitemtype_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+deliverychargestatus_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliverychargestatus"))
+deliverychargestatus_pandas_df_unique = ps.DataFrame(deliverychargestatus_pandas_df.nunique())
+deliverychargestatus_pandas_df_na = ps.DataFrame(deliverychargestatus_pandas_df.isna().sum())
+deliverychargestatus_pandas_df_unique.reset_index(inplace=True)
+deliverychargestatus_pandas_df_na.reset_index(inplace=True)
+deliverychargestatus_results = deliverychargestatus_pandas_df_unique.merge(deliverychargestatus_pandas_df_na, on='index')
+deliverychargestatus_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+deliverymeterdetail_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliverymeterdetail"))
+deliverymeterdetail_pandas_df_unique = ps.DataFrame(deliverymeterdetail_pandas_df.nunique())
+deliverymeterdetail_pandas_df_na = ps.DataFrame(deliverymeterdetail_pandas_df.isna().sum())
+deliverymeterdetail_pandas_df_unique.reset_index(inplace=True)
+deliverymeterdetail_pandas_df_na.reset_index(inplace=True)
+deliverymeterdetail_results = deliverymeterdetail_pandas_df_unique.merge(deliverymeterdetail_pandas_df_na, on='index')
+deliverymeterdetail_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+deliveryserviceclasscategory_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliveryserviceclasscategory"))
+deliveryserviceclasscategory_pandas_df_unique = ps.DataFrame(deliveryserviceclasscategory_pandas_df.nunique())
+deliveryserviceclasscategory_pandas_df_na = ps.DataFrame(deliveryserviceclasscategory_pandas_df.isna().sum())
+deliveryserviceclasscategory_pandas_df_unique.reset_index(inplace=True)
+deliveryserviceclasscategory_pandas_df_na.reset_index(inplace=True)
+deliveryserviceclasscategory_results = deliveryserviceclasscategory_pandas_df_unique.merge(deliveryserviceclasscategory_pandas_df_na, on='index')
+deliveryserviceclasscategory_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+factorestimateddelivery_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.factorestimateddelivery"))
+factorestimateddelivery_pandas_df_unique = ps.DataFrame(factorestimateddelivery_pandas_df.nunique())
+factorestimateddelivery_pandas_df_na = ps.DataFrame(factorestimateddelivery_pandas_df.isna().sum())
+factorestimateddelivery_pandas_df_unique.reset_index(inplace=True)
+factorestimateddelivery_pandas_df_na.reset_index(inplace=True)
+factorestimateddelivery_results = factorestimateddelivery_pandas_df_unique.merge(factorestimateddelivery_pandas_df_na, on='index')
+factorestimateddelivery_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
 
 daylightsavingtime = sqlContext.sql("select * from importnextstar.daylightsavingtime")
 daylightsavingtime_pandas_df = ps.DataFrame(daylightsavingtime)
@@ -229,51 +295,21 @@ usagebehaviorrules_pandas_df_na.reset_index(inplace=True)
 usagebehaviorrules_results = usagebehaviorrules_pandas_df_unique.merge(usagebehaviorrules_pandas_df_na, on='index')
 usagebehaviorrules_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
 
+
 # COMMAND ----------
 
-accountproduct_results = accountproduct_results.to_spark()
-accountproduct_results = accountproduct_results.withColumn("table",lit("accountproduct"))
+deliverybalance_results = deliverybalance_results.to_spark()
+deliverychargeitemtype_results = deliverychargeitemtype_results.to_spark()
+deliverychargestatus_results = deliverychargestatus_results.to_spark()
+deliverymeterdetail_results = deliverymeterdetail_results.to_spark()
+deliveryserviceclasscategory_results = deliveryserviceclasscategory_results.to_spark()
+factorestimateddelivery_results = factorestimateddelivery_results.to_spark()
 
-daylightsavingtime_results = daylightsavingtime_results.to_spark()
-daylightsavingtime_results = daylightsavingtime_results.withColumn("table",lit("daylightsavingtime"))
+deliverybalance_results = deliverybalance_results.withColumn("table",lit("deliverybalance"))
+deliverychargeitemtype_results = deliverychargeitemtype_results.withColumn("table",lit("deliverychargeitemtype"))
+deliverychargestatus_results = deliverychargestatus_results.withColumn("table",lit("deliverychargestatus"))
+deliverymeterdetail_results = deliverymeterdetail_results.withColumn("table",lit("deliverymeterdetail"))
+deliveryserviceclasscategory_results = deliveryserviceclasscategory_results.withColumn("table",lit("deliveryserviceclasscategory"))
+factorestimateddelivery_results = factorestimateddelivery_results.withColumn("table",lit("factorestimateddelivery"))
 
-energyhourlyusagedetail_results = energyhourlyusagedetail_results.to_spark()
-energyhourlyusagedetail_results = energyhourlyusagedetail_results.withColumn("table",lit("energyhourlyusagedetail"))
-
-energymonthlyservicepoint_results = energymonthlyservicepoint_results.to_spark()
-energymonthlyservicepoint_results = energymonthlyservicepoint_results.withColumn("table",lit("energymonthlyservicepoint")))
-
-estimatedusage_results = estimatedusage_results.to_spark()
-estimatedusage_results = estimatedusage_results.withColumn("table",lit("estimatedusage"))
-
-meterenergymonthlyusage_results = meterenergymonthlyusage_results.to_spark()
-meterenergymonthlyusage_results = meterenergymonthlyusage_results.withColumn("table",lit("meterenergymonthlyusage"))
-
-usageallowedthresholdfactor_results = usageallowedthresholdfactor_results.to_spark()
-usageallowedthresholdfactor_results = usageallowedthresholdfactor_results.withColumn("table",lit("usageallowedthresholdfactor"))
-
-usagebehaviorrules_results = usagebehaviorrules_results.to_spark()
-usagebehaviorrules_results = usagebehaviorrules_results.withColumn("table",lit("usagebehaviorrules"))
-
-energymonthlyservicepoint_results = energymonthlyservicepoint_results.to_spark()
-energymonthlyservicepoint_results = energymonthlyservicepoint_results.withColumn("table",lit("energymonthlyservicepoint"))
-
-deliverycharge_results = deliverycharge_results.to_spark()
-deliverycharge_results = deliverycharge_results.withColumn("table",lit("deliverycharge"))
-
-deliverychargecodedescription_results = deliverychargecodedescription_results.to_spark()
-deliverychargecodedescription_results = deliverychargecodedescription_results.withColumn("table",lit("deliverychargecodedescription"))
-
-deliverychargedetail_results = deliverychargedetail_results.to_spark()
-deliverychargedetail_results = deliverychargedetail_results.withColumn("table",lit("deliverychargedetail"))
-
-deliverychargeincludedetail_results = deliverychargeincludedetail_results.to_spark()
-deliverychargeincludedetail_results = deliverychargeincludedetail_results.withColumn("table",lit("deliverychargeincludedetail"))
-
-#consolidate datasets in one single object
-Report = accountproduct_results.union(daylightsavingtime_results).union(energyhourlyusagedetail_results).union(energymonthlyservicepoint_results).union(estimatedusage_results).union(meterenergymonthlyusage_results).union(usageallowedthresholdfactor_results).union(usagebehaviorrules_results)
-
-#write to the csv file and display the report
-
-Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/unified_results.csv"
-Report.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
+Report = deliverybalance_results.union(deliverychargeitemtype_results).union(deliverychargestatus_results).union(deliverymeterdetail_results).union(deliveryserviceclasscategory_results).union(factorestimateddelivery_results)
