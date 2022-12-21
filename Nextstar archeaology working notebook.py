@@ -64,6 +64,22 @@ spark.conf.set(
 
 # COMMAND ----------
 
+Accountproduct_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.accountproduct"))
+Accountproduct_pandas_df_unique = ps.DataFrame(Accountproduct_pandas_df.nunique())
+Accountproduct_pandas_df_na = ps.DataFrame(Accountproduct_pandas_df.isna().sum())
+Accountproduct_pandas_df_unique.reset_index(inplace=True)
+Accountproduct_pandas_df_na.reset_index(inplace=True)
+Accountproduct_results = Accountproduct_pandas_df_unique.merge(Accountproduct_pandas_df_na, on='index')
+Accountproduct_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+basetype_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.basetype"))
+basetype_pandas_df_unique = ps.DataFrame(basetype_pandas_df.nunique())
+basetype_pandas_df_na = ps.DataFrame(basetype_pandas_df.isna().sum())
+basetype_pandas_df_unique.reset_index(inplace=True)
+basetype_pandas_df_na.reset_index(inplace=True)
+basetype_results = basetype_pandas_df_unique.merge(basetype_pandas_df_na, on='index')
+basetype_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
 deliveryserviceclasscategory_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliveryserviceclasscategory"))
 deliveryserviceclasscategory_pandas_df_unique = ps.DataFrame(deliveryserviceclasscategory_pandas_df.nunique())
 deliveryserviceclasscategory_pandas_df_na = ps.DataFrame(deliveryserviceclasscategory_pandas_df.isna().sum())
@@ -113,16 +129,6 @@ deliverychargeincludedetail_results = deliverychargeincludedetail_pandas_df_uniq
 deliverychargeincludedetail_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
 
 # COMMAND ----------
-
-basetype_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.basetype"))
-basetype_pandas_df_unique = ps.DataFrame(basetype_pandas_df.nunique())
-basetype_pandas_df_na = ps.DataFrame(basetype_pandas_df.isna().sum())
-basetype_pandas_df_unique.reset_index(inplace=True)
-basetype_pandas_df_na.reset_index(inplace=True)
-basetype_results = basetype_pandas_df_unique.merge(basetype_pandas_df_na, on='index')
-basetype_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
-
-# COMMAND ---------
 
 energymonthlyservicepoint_results = energymonthlyservicepoint_results.to_spark()
 energymonthlyservicepoint_results = energymonthlyservicepoint_results.withColumn("table",lit("energymonthlyservicepoint"))
