@@ -16,15 +16,13 @@ spark.conf.set(
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC 
 # MAGIC DROP DATABASE importnextstar CASCADE;
 # MAGIC CREATE DATABASE IF NOT EXISTS importnextstar;
 
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC 
-# MAGIC DROP TABLE if exists import.importnextstar;
+# MAGIC DROP TABLE if exists importnextstar.accountproduct;
 # MAGIC CREATE TABLE importnextstar.accountproduct 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/accountproduct";
@@ -38,12 +36,21 @@ spark.conf.set(
 # MAGIC CREATE TABLE importnextstar.energyhourlyusagedetail 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/energyhourlyusagedetail";
+# MAGIC DROP TABLE if exists importnextstar.basetype;
+# MAGIC CREATE TABLE importnextstar.basetype 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/basetype";
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.deliveryserviceclasscategory;
+# MAGIC CREATE TABLE importnextstar.deliveryserviceclasscategory 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliveryserviceclasscategory";
 # MAGIC 
 # MAGIC DROP TABLE if exists importnextstar.energymonthlyservicepoint;
 # MAGIC CREATE TABLE importnextstar.energymonthlyservicepoint 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/energymonthlyservicepoint";
-# MAGIC 
+# MAGIC
 # MAGIC DROP TABLE if exists importnextstar.estimatedusage;
 # MAGIC CREATE TABLE importnextstar.estimatedusage 
 # MAGIC USING parquet
@@ -63,8 +70,92 @@ spark.conf.set(
 # MAGIC CREATE TABLE importnextstar.usagebehaviorrules 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/usagebehaviorrules";
+# MAGIC DROP TABLE if exists importnextstar.deliverycharge;
+# MAGIC CREATE TABLE importnextstar.deliverycharge 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliverycharge";
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.deliverychargecodedescription;
+# MAGIC CREATE TABLE importnextstar.deliverychargecodedescription 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliverychargecodedescription";
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.deliverychargedetail;
+# MAGIC CREATE TABLE importnextstar.deliverychargedetail 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliverychargedetail";
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.deliverychargeincludedetail;
+# MAGIC CREATE TABLE importnextstar.deliverychargeincludedetail 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliverychargeincludedetail";
+
 
 # COMMAND ----------
+
+Accountproduct_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.accountproduct"))
+Accountproduct_pandas_df_unique = ps.DataFrame(Accountproduct_pandas_df.nunique())
+Accountproduct_pandas_df_na = ps.DataFrame(Accountproduct_pandas_df.isna().sum())
+Accountproduct_pandas_df_unique.reset_index(inplace=True)
+Accountproduct_pandas_df_na.reset_index(inplace=True)
+Accountproduct_results = Accountproduct_pandas_df_unique.merge(Accountproduct_pandas_df_na, on='index')
+Accountproduct_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+basetype_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.basetype"))
+basetype_pandas_df_unique = ps.DataFrame(basetype_pandas_df.nunique())
+basetype_pandas_df_na = ps.DataFrame(basetype_pandas_df.isna().sum())
+basetype_pandas_df_unique.reset_index(inplace=True)
+basetype_pandas_df_na.reset_index(inplace=True)
+basetype_results = basetype_pandas_df_unique.merge(basetype_pandas_df_na, on='index')
+basetype_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+deliveryserviceclasscategory_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliveryserviceclasscategory"))
+deliveryserviceclasscategory_pandas_df_unique = ps.DataFrame(deliveryserviceclasscategory_pandas_df.nunique())
+deliveryserviceclasscategory_pandas_df_na = ps.DataFrame(deliveryserviceclasscategory_pandas_df.isna().sum())
+deliveryserviceclasscategory_pandas_df_unique.reset_index(inplace=True)
+deliveryserviceclasscategory_pandas_df_na.reset_index(inplace=True)
+deliveryserviceclasscategory_results = deliveryserviceclasscategory_pandas_df_unique.merge(deliveryserviceclasscategory_pandas_df_na, on='index')
+deliveryserviceclasscategory_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+energymonthlyservicepoint_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.energymonthlyservicepoint"))
+energymonthlyservicepoint_pandas_df_unique = ps.DataFrame(energymonthlyservicepoint_pandas_df.nunique())
+energymonthlyservicepoint_pandas_df_na = ps.DataFrame(energymonthlyservicepoint_pandas_df.isna().sum())
+energymonthlyservicepoint_pandas_df_unique.reset_index(inplace=True)
+energymonthlyservicepoint_pandas_df_na.reset_index(inplace=True)
+energymonthlyservicepoint_results = energymonthlyservicepoint_pandas_df_unique.merge(energymonthlyservicepoint_pandas_df_na, on='index')
+energymonthlyservicepoint_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+deliverycharge_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliverycharge"))
+deliverycharge_pandas_df_unique = ps.DataFrame(deliverycharge_pandas_df.nunique())
+deliverycharge_pandas_df_na = ps.DataFrame(deliverycharge_pandas_df.isna().sum())
+deliverycharge_pandas_df_unique.reset_index(inplace=True)
+deliverycharge_pandas_df_na.reset_index(inplace=True)
+deliverycharge_results = deliverycharge_pandas_df_unique.merge(deliverycharge_pandas_df_na, on='index')
+deliverycharge_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+deliverychargecodedescription_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliverychargecodedescription"))
+deliverychargecodedescription_pandas_df_unique = ps.DataFrame(deliverychargecodedescription_pandas_df.nunique())
+deliverychargecodedescription_pandas_df_na = ps.DataFrame(deliverychargecodedescription_pandas_df.isna().sum())
+deliverychargecodedescription_pandas_df_unique.reset_index(inplace=True)
+deliverychargecodedescription_pandas_df_na.reset_index(inplace=True)
+deliverychargecodedescription_results = deliverychargecodedescription_pandas_df_unique.merge(deliverychargecodedescription_pandas_df_na, on='index')
+deliverychargecodedescription_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+deliverychargedetail_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliverychargedetail"))
+deliverychargedetail_pandas_df_unique = ps.DataFrame(deliverychargedetail_pandas_df.nunique())
+deliverychargedetail_pandas_df_na = ps.DataFrame(deliverychargedetail_pandas_df.isna().sum())
+deliverychargedetail_pandas_df_unique.reset_index(inplace=True)
+deliverychargedetail_pandas_df_na.reset_index(inplace=True)
+deliverychargedetail_results = deliverychargedetail_pandas_df_unique.merge(deliverychargedetail_pandas_df_na, on='index')
+deliverychargedetail_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+deliverychargeincludedetail_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.deliverychargeincludedetail"))
+deliverychargeincludedetail_pandas_df_unique = ps.DataFrame(deliverychargeincludedetail_pandas_df.nunique())
+deliverychargeincludedetail_pandas_df_na = ps.DataFrame(deliverychargeincludedetail_pandas_df.isna().sum())
+deliverychargeincludedetail_pandas_df_unique.reset_index(inplace=True)
+deliverychargeincludedetail_pandas_df_na.reset_index(inplace=True)
+deliverychargeincludedetail_results = deliverychargeincludedetail_pandas_df_unique.merge(deliverychargeincludedetail_pandas_df_na, on='index')
+deliverychargeincludedetail_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
 
 accountproduct = sqlContext.sql("select * from importnextstar.accountproduct")
 accountproduct_pandas_df = ps.DataFrame(accountproduct)
@@ -142,43 +233,42 @@ usagebehaviorrules_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', '
 
 accountproduct_results = accountproduct_results.to_spark()
 accountproduct_results = accountproduct_results.withColumn("table",lit("accountproduct"))
-#Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/accountproduct_results.csv"
-#accountproduct_results.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
 
 daylightsavingtime_results = daylightsavingtime_results.to_spark()
 daylightsavingtime_results = daylightsavingtime_results.withColumn("table",lit("daylightsavingtime"))
-#Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/daylightsavingtime_results.csv"
-#daylightsavingtime_results.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
 
 energyhourlyusagedetail_results = energyhourlyusagedetail_results.to_spark()
 energyhourlyusagedetail_results = energyhourlyusagedetail_results.withColumn("table",lit("energyhourlyusagedetail"))
-#Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/energyhourlyusagedetail_results.csv"
-#energyhourlyusagedetail_results.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
 
 energymonthlyservicepoint_results = energymonthlyservicepoint_results.to_spark()
-energymonthlyservicepoint_results = energymonthlyservicepoint_results.withColumn("table",lit("energymonthlyservicepoint"))
-#Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/energymonthlyservicepoint_results.csv"
-#energymonthlyservicepoint_results.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
+energymonthlyservicepoint_results = energymonthlyservicepoint_results.withColumn("table",lit("energymonthlyservicepoint")))
 
 estimatedusage_results = estimatedusage_results.to_spark()
 estimatedusage_results = estimatedusage_results.withColumn("table",lit("estimatedusage"))
-#Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/estimatedusage_results.csv"
-#estimatedusage_results.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
 
 meterenergymonthlyusage_results = meterenergymonthlyusage_results.to_spark()
 meterenergymonthlyusage_results = meterenergymonthlyusage_results.withColumn("table",lit("meterenergymonthlyusage"))
-#Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/meterenergymonthlyusage_results.csv"
-#meterenergymonthlyusage_results.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
 
 usageallowedthresholdfactor_results = usageallowedthresholdfactor_results.to_spark()
 usageallowedthresholdfactor_results = usageallowedthresholdfactor_results.withColumn("table",lit("usageallowedthresholdfactor"))
-#Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/usageallowedthresholdfactor_results.csv"
-#usageallowedthresholdfactor_results.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
 
 usagebehaviorrules_results = usagebehaviorrules_results.to_spark()
 usagebehaviorrules_results = usagebehaviorrules_results.withColumn("table",lit("usagebehaviorrules"))
-#Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/usagebehaviorrules_results.csv"
-#usagebehaviorrules_results.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
+
+energymonthlyservicepoint_results = energymonthlyservicepoint_results.to_spark()
+energymonthlyservicepoint_results = energymonthlyservicepoint_results.withColumn("table",lit("energymonthlyservicepoint"))
+
+deliverycharge_results = deliverycharge_results.to_spark()
+deliverycharge_results = deliverycharge_results.withColumn("table",lit("deliverycharge"))
+
+deliverychargecodedescription_results = deliverychargecodedescription_results.to_spark()
+deliverychargecodedescription_results = deliverychargecodedescription_results.withColumn("table",lit("deliverychargecodedescription"))
+
+deliverychargedetail_results = deliverychargedetail_results.to_spark()
+deliverychargedetail_results = deliverychargedetail_results.withColumn("table",lit("deliverychargedetail"))
+
+deliverychargeincludedetail_results = deliverychargeincludedetail_results.to_spark()
+deliverychargeincludedetail_results = deliverychargeincludedetail_results.withColumn("table",lit("deliverychargeincludedetail"))
 
 #consolidate datasets in one single object
 Report = accountproduct_results.union(daylightsavingtime_results).union(energyhourlyusagedetail_results).union(energymonthlyservicepoint_results).union(estimatedusage_results).union(meterenergymonthlyusage_results).union(usageallowedthresholdfactor_results).union(usagebehaviorrules_results)
@@ -187,4 +277,3 @@ Report = accountproduct_results.union(daylightsavingtime_results).union(energyho
 
 Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/unified_results.csv"
 Report.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
-display(Report)
