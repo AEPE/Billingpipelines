@@ -16,13 +16,21 @@ spark.conf.set(
 # COMMAND ----------
 
 # MAGIC %sql
-# MAGIC 
 # MAGIC DROP DATABASE importnextstar CASCADE;
 # MAGIC CREATE DATABASE IF NOT EXISTS importnextstar;
 
 # COMMAND ----------
 
 # MAGIC %sql
+# MAGIC DROP TABLE if exists importnextstar.accountproduct;
+# MAGIC CREATE TABLE importnextstar.accountproduct 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/accountproduct";
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.basetype;
+# MAGIC CREATE TABLE importnextstar.basetype 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/basetype";
 # MAGIC 
 # MAGIC DROP TABLE if exists importnextstar.deliveryserviceclasscategory;
 # MAGIC CREATE TABLE importnextstar.deliveryserviceclasscategory 
@@ -106,8 +114,15 @@ deliverychargeincludedetail_results.rename({'index': 'Colname', 'None_x': 'Uniqu
 
 # COMMAND ----------
 
-deliveryserviceclasscategory_results = deliveryserviceclasscategory_results.to_spark()
-deliveryserviceclasscategory_results = deliveryserviceclasscategory_results.withColumn("table",lit("deliveryserviceclasscategory"))
+basetype_pandas_df = ps.DataFrame(sqlContext.sql("select * from importnextstar.basetype"))
+basetype_pandas_df_unique = ps.DataFrame(basetype_pandas_df.nunique())
+basetype_pandas_df_na = ps.DataFrame(basetype_pandas_df.isna().sum())
+basetype_pandas_df_unique.reset_index(inplace=True)
+basetype_pandas_df_na.reset_index(inplace=True)
+basetype_results = basetype_pandas_df_unique.merge(basetype_pandas_df_na, on='index')
+basetype_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+# COMMAND ---------
 
 energymonthlyservicepoint_results = energymonthlyservicepoint_results.to_spark()
 energymonthlyservicepoint_results = energymonthlyservicepoint_results.withColumn("table",lit("energymonthlyservicepoint"))
@@ -123,15 +138,6 @@ deliverychargedetail_results = deliverychargedetail_results.withColumn("table",l
 
 deliverychargeincludedetail_results = deliverychargeincludedetail_results.to_spark()
 deliverychargeincludedetail_results = deliverychargeincludedetail_results.withColumn("table",lit("deliverychargeincludedetail"))
-
-Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/report_plopez.csv"
-
-Report = deliveryserviceclasscategory_results.union(energymonthlyservicepoint_results).union(deliverycharge_results).union(deliverychargecodedescription_results).union(deliverychargedetail_results).union(deliverychargeincludedetail_results)
-Report.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
-
-
-# COMMAND ----------
-
 
 Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/report_plopez.csv"
 
