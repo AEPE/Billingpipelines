@@ -1,8 +1,9 @@
 # Databricks notebook source
 import pyspark.pandas as ps
 from pyspark.sql.functions import *
+from pyspark.sql import DataFrame
 from pyspark.sql import SparkSession
-from pyspark.sql.window import Window
+from functools import reduce
 from pyspark.sql.types import LongType, StringType, StructField, StructType, BooleanType, ArrayType, IntegerType, DoubleType, DateType, DecimalType , TimestampType
 
 # COMMAND ----------
@@ -57,6 +58,7 @@ spark.conf.set(
 # MAGIC CREATE TABLE importnextstar.energyhourlyusagedetail 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/energyhourlyusagedetail";
+# MAGIC 
 # MAGIC DROP TABLE if exists importnextstar.basetype;
 # MAGIC CREATE TABLE importnextstar.basetype 
 # MAGIC USING parquet
@@ -71,12 +73,12 @@ spark.conf.set(
 # MAGIC CREATE TABLE importnextstar.factorestimateddelivery 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/factorestimateddelivery";
-# MAGIC
+# MAGIC 
 # MAGIC DROP TABLE if exists importnextstar.energymonthlyservicepoint;
 # MAGIC CREATE TABLE importnextstar.energymonthlyservicepoint 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/energymonthlyservicepoint";
-# MAGIC
+# MAGIC 
 # MAGIC DROP TABLE if exists importnextstar.estimatedusage;
 # MAGIC CREATE TABLE importnextstar.estimatedusage 
 # MAGIC USING parquet
@@ -96,6 +98,7 @@ spark.conf.set(
 # MAGIC CREATE TABLE importnextstar.usagebehaviorrules 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/usagebehaviorrules";
+# MAGIC 
 # MAGIC DROP TABLE if exists importnextstar.deliverycharge;
 # MAGIC CREATE TABLE importnextstar.deliverycharge 
 # MAGIC USING parquet
@@ -115,7 +118,48 @@ spark.conf.set(
 # MAGIC CREATE TABLE importnextstar.deliverychargeincludedetail 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliverychargeincludedetail";
-
+# MAGIC 
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.accountproductagreement;
+# MAGIC CREATE TABLE importnextstar.accountproductagreement 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/accountproductagreement";
+# MAGIC 
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.billinginvoiceparameter;
+# MAGIC CREATE TABLE importnextstar.billinginvoiceparameter 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/billinginvoiceparameter";
+# MAGIC 
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.unitofmeasure;
+# MAGIC CREATE TABLE importnextstar.unitofmeasure 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/unitofmeasure";
+# MAGIC 
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.energyusagestatus;
+# MAGIC CREATE TABLE importnextstar.energyusagestatus 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/energyusagestatus";
+# MAGIC 
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.energyusage;
+# MAGIC CREATE TABLE importnextstar.energyusage 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/energyusage";
+# MAGIC 
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.accountproductservicepointdetail;
+# MAGIC CREATE TABLE importnextstar.accountproductservicepointdetail 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/accountproductservicepointdetail";
+# MAGIC 
+# MAGIC 
+# MAGIC DROP TABLE if exists importnextstar.factorestimateddelivery;
+# MAGIC CREATE TABLE importnextstar.factorestimateddelivery 
+# MAGIC USING parquet
+# MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/factorestimateddelivery";
 
 # COMMAND ----------
 
@@ -295,21 +339,134 @@ usagebehaviorrules_pandas_df_na.reset_index(inplace=True)
 usagebehaviorrules_results = usagebehaviorrules_pandas_df_unique.merge(usagebehaviorrules_pandas_df_na, on='index')
 usagebehaviorrules_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
 
+accountproductagreement = sqlContext.sql("select * from importnextstar.accountproductagreement")
+accountproductagreement_pandas_df = ps.DataFrame(accountproductagreement)
+accountproductagreement_pandas_df_unique = ps.DataFrame(accountproductagreement_pandas_df.nunique())
+accountproductagreement_pandas_df_na = ps.DataFrame(accountproductagreement_pandas_df.isna().sum())
+accountproductagreement_pandas_df_unique.reset_index(inplace=True)
+accountproductagreement_pandas_df_na.reset_index(inplace=True)
+accountproductagreement_results = accountproductagreement_pandas_df_unique.merge(accountproductagreement_pandas_df_na, on='index')
+accountproductagreement_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+
+billinginvoiceparameter = sqlContext.sql("select * from importnextstar.billinginvoiceparameter")
+billinginvoiceparameter_pandas_df = ps.DataFrame(billinginvoiceparameter)
+billinginvoiceparameter_pandas_df_unique = ps.DataFrame(billinginvoiceparameter_pandas_df.nunique())
+billinginvoiceparameter_pandas_df_na = ps.DataFrame(billinginvoiceparameter_pandas_df.isna().sum())
+billinginvoiceparameter_pandas_df_unique.reset_index(inplace=True)
+billinginvoiceparameter_pandas_df_na.reset_index(inplace=True)
+billinginvoiceparameter_results = billinginvoiceparameter_pandas_df_unique.merge(billinginvoiceparameter_pandas_df_na, on='index')
+billinginvoiceparameter_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+unitofmeasure = sqlContext.sql("select * from importnextstar.unitofmeasure")
+unitofmeasure_pandas_df = ps.DataFrame(unitofmeasure)
+unitofmeasure_pandas_df_unique = ps.DataFrame(unitofmeasure_pandas_df.nunique())
+unitofmeasure_pandas_df_na = ps.DataFrame(unitofmeasure_pandas_df.isna().sum())
+unitofmeasure_pandas_df_unique.reset_index(inplace=True)
+unitofmeasure_pandas_df_na.reset_index(inplace=True)
+unitofmeasure_results = unitofmeasure_pandas_df_unique.merge(unitofmeasure_pandas_df_na, on='index')
+unitofmeasure_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+energyusagestatus = sqlContext.sql("select * from importnextstar.energyusagestatus")
+energyusagestatus_pandas_df = ps.DataFrame(energyusagestatus)
+energyusagestatus_pandas_df_unique = ps.DataFrame(energyusagestatus_pandas_df.nunique())
+energyusagestatus_pandas_df_na = ps.DataFrame(energyusagestatus_pandas_df.isna().sum())
+energyusagestatus_pandas_df_unique.reset_index(inplace=True)
+energyusagestatus_pandas_df_na.reset_index(inplace=True)
+energyusagestatus_results = energyusagestatus_pandas_df_unique.merge(energyusagestatus_pandas_df_na, on='index')
+energyusagestatus_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+energyusage = sqlContext.sql("select * from importnextstar.energyusage")
+energyusage_pandas_df = ps.DataFrame(energyusage)
+energyusage_pandas_df_unique = ps.DataFrame(energyusage_pandas_df.nunique())
+energyusage_pandas_df_na = ps.DataFrame(energyusage_pandas_df.isna().sum())
+energyusage_pandas_df_unique.reset_index(inplace=True)
+energyusage_pandas_df_na.reset_index(inplace=True)
+energyusage_results = energyusage_pandas_df_unique.merge(energyusage_pandas_df_na, on='index')
+energyusage_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
+
+factorestimateddelivery = sqlContext.sql("select * from importnextstar.factorestimateddelivery")
+factorestimateddelivery_pandas_df = ps.DataFrame(factorestimateddelivery)
+factorestimateddelivery_pandas_df_unique = ps.DataFrame(factorestimateddelivery_pandas_df.nunique())
+factorestimateddelivery_pandas_df_na = ps.DataFrame(factorestimateddelivery_pandas_df.isna().sum())
+factorestimateddelivery_pandas_df_unique.reset_index(inplace=True)
+factorestimateddelivery_pandas_df_na.reset_index(inplace=True)
+factorestimateddelivery_results = factorestimateddelivery_pandas_df_unique.merge(factorestimateddelivery_pandas_df_na, on='index')
+factorestimateddelivery_results.rename({'index': 'Colname', 'None_x': 'Uniquevals', 'None_y': 'Nullvals'}, axis=1, inplace=True)
 
 # COMMAND ----------
 
-deliverybalance_results = deliverybalance_results.to_spark()
-deliverychargeitemtype_results = deliverychargeitemtype_results.to_spark()
-deliverychargestatus_results = deliverychargestatus_results.to_spark()
-deliverymeterdetail_results = deliverymeterdetail_results.to_spark()
-deliveryserviceclasscategory_results = deliveryserviceclasscategory_results.to_spark()
-factorestimateddelivery_results = factorestimateddelivery_results.to_spark()
+df_names = ["Accountproduct"
+           ,"basetype"
+           ,"deliveryserviceclasscategory"
+           ,"energymonthlyservicepoint"
+           ,"deliverycharge"
+           ,"deliverychargecodedescription"
+           ,"deliverychargedetail"
+           ,"deliverychargeincludedetail"
+           ,"deliverybalance"
+           ,"deliverychargeitemtype"
+           ,"deliverychargestatus"
+           ,"deliverymeterdetail"
+           ,"deliveryserviceclasscategory"
+           ,"factorestimateddelivery"
+           ,"daylightsavingtime"
+           ,"energyhourlyusagedetail"
+           ,"energymonthlyservicepoint"
+           ,"estimatedusage"
+           ,"meterenergymonthlyusage"
+           ,"usageallowedthresholdfactor"
+           ,"usagebehaviorrules"
+           ,"accountproductagreement"
+           ,"billinginvoiceparameter"
+           ,"unitofmeasure"
+           ,"energyusagestatus"
+           ,"energyusage"
+           ,"factorestimateddelivery"]
 
-deliverybalance_results = deliverybalance_results.withColumn("table",lit("deliverybalance"))
-deliverychargeitemtype_results = deliverychargeitemtype_results.withColumn("table",lit("deliverychargeitemtype"))
-deliverychargestatus_results = deliverychargestatus_results.withColumn("table",lit("deliverychargestatus"))
-deliverymeterdetail_results = deliverymeterdetail_results.withColumn("table",lit("deliverymeterdetail"))
-deliveryserviceclasscategory_results = deliveryserviceclasscategory_results.withColumn("table",lit("deliveryserviceclasscategory"))
-factorestimateddelivery_results = factorestimateddelivery_results.withColumn("table",lit("factorestimateddelivery"))
+df_list = [Accountproduct_results
+           ,basetype_results
+           ,deliveryserviceclasscategory_results
+           ,energymonthlyservicepoint_results
+           ,deliverycharge_results
+           ,deliverychargecodedescription_results
+           ,deliverychargedetail_results
+           ,deliverychargeincludedetail_results
+           ,deliverybalance_results
+           ,deliverychargeitemtype_results
+           ,deliverychargestatus_results
+           ,deliverymeterdetail_results
+           ,deliveryserviceclasscategory_results
+           ,factorestimateddelivery_results
+           ,daylightsavingtime_results
+           ,energyhourlyusagedetail_results
+           ,energymonthlyservicepoint_results
+           ,estimatedusage_results
+           ,meterenergymonthlyusage_results
+           ,usageallowedthresholdfactor_results
+           ,usagebehaviorrules_results
+           ,accountproductagreement_results
+           ,billinginvoiceparameter_results
+           ,unitofmeasure_results
+           ,energyusagestatus_results
+           ,energyusage_results
+           ,factorestimateddelivery_results]
 
-Report = deliverybalance_results.union(deliverychargeitemtype_results).union(deliverychargestatus_results).union(deliverymeterdetail_results).union(deliveryserviceclasscategory_results).union(factorestimateddelivery_results)
+#Create empty DataFrame from empty RDD
+df = ps.DataFrame(columns=['Colname', 'Uniquevals', 'Nullvals','Table'])
+
+#function to generate report by consolidating all the separate dataframes and include a column to identify the database table corresponding for each row
+def create_tablenamecol(df,dflist,dfnames):
+    t=0
+    for i in dflist:
+        i['Table'] = dfnames[t]
+        t += 1
+        df = df.append(i)
+    return df.to_spark()
+
+# COMMAND ----------
+
+Report = create_tablenamecol(df,df_list,df_names)
+
+Path = "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/report_agreement.csv"
+Report.repartition(1).write.format("csv").mode("overwrite").option("header", "true").save(Path)
