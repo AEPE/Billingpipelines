@@ -71,12 +71,12 @@ spark.conf.set(
 # MAGIC CREATE TABLE importnextstar.factorestimateddelivery 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/factorestimateddelivery";
-# MAGIC
+# MAGIC 
 # MAGIC DROP TABLE if exists importnextstar.energymonthlyservicepoint;
 # MAGIC CREATE TABLE importnextstar.energymonthlyservicepoint 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/energymonthlyservicepoint";
-# MAGIC
+# MAGIC 
 # MAGIC DROP TABLE if exists importnextstar.estimatedusage;
 # MAGIC CREATE TABLE importnextstar.estimatedusage 
 # MAGIC USING parquet
@@ -115,7 +115,6 @@ spark.conf.set(
 # MAGIC CREATE TABLE importnextstar.deliverychargeincludedetail 
 # MAGIC USING parquet
 # MAGIC LOCATION "wasbs://nextstar@stgbillingpoc.blob.core.windows.net/parquet-nextstar-raw/deliverychargeincludedetail";
-
 
 # COMMAND ----------
 
